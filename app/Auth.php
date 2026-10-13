@@ -48,16 +48,16 @@ class Auth
         return $_SESSION['user']['role'] ?? null;
     }
 
-    public static function requireLogin(): void
+    public static function needLogin(): void
     {
         if (!self::check()) {
             redirect('login');
         }
     }
 
-    public static function requireRole(string $role): void
+    public static function needRole(string $role): void
     {
-        self::requireLogin();
+        self::needLogin();
 
         if (self::role() !== $role) {
             http_response_code(403);
@@ -65,7 +65,7 @@ class Auth
         }
     }
 
-    public static function csrfToken(): string
+    public static function csrf(): string
     {
         if (empty($_SESSION['csrf'])) {
             $_SESSION['csrf'] = bin2hex(random_bytes(32));
@@ -73,7 +73,7 @@ class Auth
         return $_SESSION['csrf'];
     }
 
-    public static function verifyCsrf(): void
+    public static function checkCsrf(): void
     {
         $sent = $_POST['csrf'] ?? '';
 

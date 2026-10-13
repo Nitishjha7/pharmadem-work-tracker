@@ -25,7 +25,7 @@ Employee
 
 ## Overdue and performance score
 
-A task is overdue if it is not completed and its due date is before today. The rule is defined once in `Tasks::OVERDUE` and used by every query.
+A task is overdue if it is not completed and its due date is before today. The rule is defined once in `Tasks::OVERDUE_COND` and used by every query.
 
 ```
 score = 60% * completion rate + 40% * on-time rate
@@ -73,7 +73,7 @@ public/assets/        css
 app/
   Database.php        PDO connection
   Auth.php            login, roles, CSRF
-  helpers.php         e(), redirect(), flash messages, view()
+  helpers.php         esc(), redirect(), flash messages, render()
   Users.php, Tasks.php, DailyUpdates.php, Performance.php    database queries
   *Controller.php     request handling
   views/              page templates

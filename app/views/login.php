@@ -4,7 +4,7 @@
         <p class="muted">Sign in to continue</p>
 
         <form method="post" action="index.php?r=login.submit">
-            <input type="hidden" name="csrf" value="<?= e(Auth::csrfToken()) ?>">
+            <input type="hidden" name="csrf" value="<?= esc(Auth::csrf()) ?>">
 
             <label>Email</label>
             <input type="email" name="email" required autofocus>

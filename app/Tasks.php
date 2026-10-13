@@ -14,7 +14,7 @@ class Tasks
     // Overdue = not completed and due date already passed.
     // Every query that needs "overdue" uses this so the numbers match everywhere.
     // Tables using it must alias tasks as t.
-    const OVERDUE = "(t.status <> 'completed' AND t.due_date IS NOT NULL AND t.due_date < CURDATE())";
+    const OVERDUE_COND = "(t.status <> 'completed' AND t.due_date IS NOT NULL AND t.due_date < CURDATE())";
 
     public static function isOverdue(array $task): bool
     {
@@ -34,7 +34,7 @@ class Tasks
         return $stmt->fetchAll();
     }
 
-    public static function filter(?string $status, ?int $employeeId): array
+    public static function search(?string $status, ?int $employeeId): array
     {
         $sql = "SELECT t.*, u.name AS employee_name
                 FROM tasks t
@@ -43,7 +43,7 @@ class Tasks
         $params = [];
 
         if ($status === 'overdue') {
-            $sql .= ' AND ' . self::OVERDUE;
+            $sql .= ' AND ' . self::OVERDUE_COND;
         } elseif (isset(self::STATUSES[$status])) {
             $sql .= ' AND t.status = ?';
             $params[] = $status;
@@ -77,6 +77,37 @@ class Tasks
         ]);
     }
 
+    public static function find(int $id): ?array
+    {
+        $stmt = Database::connection()->prepare('SELECT * FROM tasks WHERE id = ?');
+        $stmt->execute([$id]);
+        return $stmt->fetch() ?: null;
+    }
+
+    // Manager edit. Status and completed_at are left alone, those belong to the employee.
+    public static function update(int $id, array $data): void
+    {
+        $stmt = Database::connection()->prepare(
+            'UPDATE tasks
+             SET title = ?, description = ?, assigned_to = ?, priority = ?, due_date = ?
+             WHERE id = ?'
+        );
+        $stmt->execute([
+            $data['title'],
+            $data['description'] ?: null,
+            $data['assigned_to'],
+            $data['priority'],
+            $data['due_date'] ?: null,
+            $id,
+        ]);
+    }
+
+    public static function delete(int $id): void
+    {
+        $stmt = Database::connection()->prepare('DELETE FROM tasks WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
     // The assigned_to check means an employee can only touch their own tasks.
     public static function updateStatus(int $taskId, int $employeeId, string $status): bool
     {
@@ -93,13 +124,13 @@ class Tasks
         return (bool) $check->fetchColumn();
     }
 
-    public static function counts(): array
+    public static function stats(): array
     {
         $sql = "SELECT
                     COUNT(*) AS total,
                     COALESCE(SUM(t.status = 'completed'), 0) AS completed,
                     COALESCE(SUM(t.status <> 'completed'), 0) AS open,
-                    COALESCE(SUM(" . self::OVERDUE . "), 0) AS overdue
+                    COALESCE(SUM(" . self::OVERDUE_COND . "), 0) AS overdue
                 FROM tasks t";
 
         return array_map('intval', Database::connection()->query($sql)->fetch());

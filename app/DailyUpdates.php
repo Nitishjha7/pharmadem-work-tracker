@@ -24,7 +24,7 @@ class DailyUpdates
         return $stmt->fetchAll();
     }
 
-    public static function recent(int $limit = 10): array
+    public static function latest(int $limit = 10): array
     {
         $stmt = Database::connection()->prepare(
             'SELECT d.*, u.name AS employee_name

@@ -1,6 +1,6 @@
 <?php
 
-function e(?string $value): string
+function esc(?string $value): string
 {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
 }
@@ -11,31 +11,31 @@ function redirect(string $route): void
     exit;
 }
 
-function set_flash(string $message, string $type = 'success'): void
+function flash(string $message, string $type = 'success'): void
 {
     $_SESSION['flash'] = ['message' => $message, 'type' => $type];
 }
 
-function get_flash(): ?array
+function pull_flash(): ?array
 {
     $flash = $_SESSION['flash'] ?? null;
     unset($_SESSION['flash']);
     return $flash;
 }
 
-function is_valid_date(string $date): bool
+function valid_date(string $date): bool
 {
     $d = DateTime::createFromFormat('Y-m-d', $date);
     return $d !== false && $d->format('Y-m-d') === $date;
 }
 
-function rating_class(string $rating): string
+function rating_css(string $rating): string
 {
     return 'rating-' . str_replace(' ', '-', strtolower($rating));
 }
 
 // Renders app/views/<name>.php and wraps it in the layout.
-function view(string $name, array $data = []): void
+function render(string $name, array $data = []): void
 {
     extract($data);
 

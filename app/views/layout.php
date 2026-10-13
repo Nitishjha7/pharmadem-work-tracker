@@ -1,10 +1,10 @@
-<?php $user = Auth::user(); $flash = get_flash(); ?>
+<?php $user = Auth::user(); $flash = pull_flash(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($title ?? 'PharmaDEM') ?> | PharmaDEM</title>
+    <title><?= esc($title ?? 'PharmaDEM') ?> | PharmaDEM</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -23,7 +23,7 @@
             <?php endif; ?>
         </nav>
         <div class="user">
-            <?= e($user['name']) ?> (<?= e($user['role']) ?>)
+            <?= esc($user['name']) ?> (<?= esc($user['role']) ?>)
             <a class="logout" href="index.php?r=logout">Logout</a>
         </div>
     </header>
@@ -31,7 +31,7 @@
 
 <main class="container">
     <?php if ($flash): ?>
-        <div class="flash flash-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></div>
+        <div class="flash flash-<?= esc($flash['type']) ?>"><?= esc($flash['message']) ?></div>
     <?php endif; ?>
 
     <?= $content ?>

@@ -6,7 +6,7 @@
     <select name="status" onchange="this.form.submit()">
         <option value="">All statuses</option>
         <?php foreach (Tasks::STATUSES + ['overdue' => 'Overdue'] as $key => $label): ?>
-            <option value="<?= $key ?>" <?= $status === $key ? 'selected' : '' ?>><?= e($label) ?></option>
+            <option value="<?= $key ?>" <?= $status === $key ? 'selected' : '' ?>><?= esc($label) ?></option>
         <?php endforeach; ?>
     </select>
 
@@ -14,7 +14,7 @@
         <option value="">All employees</option>
         <?php foreach ($employees as $emp): ?>
             <option value="<?= (int) $emp['id'] ?>" <?= $employee === (int) $emp['id'] ? 'selected' : '' ?>>
-                <?= e($emp['name']) ?>
+                <?= esc($emp['name']) ?>
             </option>
         <?php endforeach; ?>
     </select>
@@ -35,17 +35,17 @@
         <?php $overdue = Tasks::isOverdue($t); ?>
         <tr class="<?= $overdue ? 'row-overdue' : '' ?>">
             <td>
-                <strong><?= e($t['title']) ?></strong>
+                <strong><?= esc($t['title']) ?></strong>
                 <?php if ($t['description']): ?>
-                    <div class="muted small"><?= e($t['description']) ?></div>
+                    <div class="muted small"><?= esc($t['description']) ?></div>
                 <?php endif; ?>
             </td>
-            <td><?= e($t['employee_name']) ?></td>
-            <td><span class="pill pill-<?= e($t['priority']) ?>"><?= e($t['priority']) ?></span></td>
-            <td><?= e(Tasks::STATUSES[$t['status']]) ?></td>
+            <td><?= esc($t['employee_name']) ?></td>
+            <td><span class="pill pill-<?= esc($t['priority']) ?>"><?= esc($t['priority']) ?></span></td>
+            <td><?= esc(Tasks::STATUSES[$t['status']]) ?></td>
             <td>
                 <?php if ($t['due_date']): ?>
-                    <?= e($t['due_date']) ?>
+                    <?= esc($t['due_date']) ?>
                     <?php if ($overdue): ?><span class="due-over">(overdue)</span><?php endif; ?>
                 <?php else: ?>
                     <span class="muted">-</span>

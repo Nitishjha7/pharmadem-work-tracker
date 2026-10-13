@@ -17,9 +17,9 @@
             <tbody>
             <?php foreach ($performance as $p): ?>
                 <tr>
-                    <td><?= e($p['name']) ?></td>
+                    <td><?= esc($p['name']) ?></td>
                     <td><strong><?= $p['score'] ?></strong></td>
-                    <td><span class="rating <?= rating_class($p['rating']) ?>"><?= e($p['rating']) ?></span></td>
+                    <td><span class="rating <?= rating_css($p['rating']) ?>"><?= esc($p['rating']) ?></span></td>
                     <td><?= $p['overdue'] ?></td>
                 </tr>
             <?php endforeach; ?>
@@ -38,12 +38,12 @@
         <div class="update-list">
             <?php foreach ($updates as $u): ?>
                 <article class="update-item">
-                    <div class="update-date"><?= e($u['update_date']) ?></div>
+                    <div class="update-date"><?= esc($u['update_date']) ?></div>
                     <div class="update-body">
-                        <strong><?= e($u['employee_name']) ?></strong>
-                        <p><?= nl2br(e($u['work_summary'])) ?></p>
+                        <strong><?= esc($u['employee_name']) ?></strong>
+                        <p><?= nl2br(esc($u['work_summary'])) ?></p>
                         <?php if ($u['blockers']): ?>
-                            <p class="blocker"><strong>Blockers:</strong> <?= nl2br(e($u['blockers'])) ?></p>
+                            <p class="blocker"><strong>Blockers:</strong> <?= nl2br(esc($u['blockers'])) ?></p>
                         <?php endif; ?>
                     </div>
                 </article>

@@ -4,26 +4,26 @@ class ManagerController
 {
     public static function dashboard(): void
     {
-        Auth::requireRole('manager');
+        Auth::needRole('manager');
 
-        view('manager_dashboard', [
+        render('manager_dashboard', [
             'title'       => 'Dashboard',
-            'counts'      => Tasks::counts(),
-            'updates'     => DailyUpdates::recent(),
-            'performance' => Performance::perEmployee(),
+            'counts'      => Tasks::stats(),
+            'updates'     => DailyUpdates::latest(),
+            'performance' => Performance::report(),
         ]);
     }
 
     public static function tasks(): void
     {
-        Auth::requireRole('manager');
+        Auth::needRole('manager');
 
         $status   = $_GET['status'] ?? '';
         $employee = (int) ($_GET['employee'] ?? 0);
 
-        view('manager_tasks', [
+        render('manager_tasks', [
             'title'     => 'All Tasks',
-            'tasks'     => Tasks::filter($status, $employee ?: null),
+            'tasks'     => Tasks::search($status, $employee ?: null),
             'employees' => Users::employees(),
             'status'    => $status,
             'employee'  => $employee,
@@ -32,9 +32,9 @@ class ManagerController
 
     public static function newTask(): void
     {
-        Auth::requireRole('manager');
+        Auth::needRole('manager');
 
-        view('manager_task_form', [
+        render('manager_task_form', [
             'title'     => 'Assign Task',
             'employees' => Users::employees(),
         ]);
@@ -42,8 +42,8 @@ class ManagerController
 
     public static function createTask(): void
     {
-        Auth::requireRole('manager');
-        Auth::verifyCsrf();
+        Auth::needRole('manager');
+        Auth::checkCsrf();
 
         $title    = trim($_POST['title'] ?? '');
         $priority = $_POST['priority'] ?? 'medium';
@@ -60,12 +60,12 @@ class ManagerController
         if (!in_array($priority, Tasks::PRIORITIES, true)) {
             $errors[] = 'Invalid priority.';
         }
-        if ($dueDate !== '' && !is_valid_date($dueDate)) {
+        if ($dueDate !== '' && !valid_date($dueDate)) {
             $errors[] = 'Due date is not valid.';
         }
 
         if ($errors) {
-            set_flash(implode(' ', $errors), 'error');
+            flash(implode(' ', $errors), 'error');
             redirect('manager/task/new');
         }
 
@@ -78,17 +78,17 @@ class ManagerController
             'due_date'    => $dueDate,
         ]);
 
-        set_flash('Task assigned to ' . $assignee['name'] . '.');
+        flash('Task assigned to ' . $assignee['name'] . '.');
         redirect('manager/tasks');
     }
 
     public static function reports(): void
     {
-        Auth::requireRole('manager');
+        Auth::needRole('manager');
 
-        view('manager_reports', [
+        render('manager_reports', [
             'title'       => 'Reports',
-            'performance' => Performance::perEmployee(),
+            'performance' => Performance::report(),
         ]);
     }
 }

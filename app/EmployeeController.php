@@ -4,49 +4,49 @@ class EmployeeController
 {
     public static function dashboard(): void
     {
-        Auth::requireRole('employee');
+        Auth::needRole('employee');
 
-        $buckets = array_fill_keys(array_keys(Tasks::STATUSES), []);
+        $columns = array_fill_keys(array_keys(Tasks::STATUSES), []);
         $overdueCount = 0;
 
         foreach (Tasks::forEmployee(Auth::id()) as $task) {
-            $buckets[$task['status']][] = $task;
+            $columns[$task['status']][] = $task;
             if (Tasks::isOverdue($task)) {
                 $overdueCount++;
             }
         }
 
-        view('employee_dashboard', [
+        render('employee_dashboard', [
             'title'        => 'My Tasks',
-            'buckets'      => $buckets,
+            'buckets'      => $columns,
             'overdueCount' => $overdueCount,
         ]);
     }
 
     public static function updateStatus(): void
     {
-        Auth::requireRole('employee');
-        Auth::verifyCsrf();
+        Auth::needRole('employee');
+        Auth::checkCsrf();
 
         $taskId = (int) ($_POST['task_id'] ?? 0);
         $status = $_POST['status'] ?? '';
 
         if (!isset(Tasks::STATUSES[$status])) {
-            set_flash('Invalid status.', 'error');
+            flash('Invalid status.', 'error');
             redirect('employee/dashboard');
         }
 
         if (Tasks::updateStatus($taskId, Auth::id(), $status)) {
-            set_flash('Task updated.');
+            flash('Task updated.');
         } else {
-            set_flash('Task not found.', 'error');
+            flash('Task not found.', 'error');
         }
         redirect('employee/dashboard');
     }
 
     public static function updates(): void
     {
-        Auth::requireRole('employee');
+        Auth::needRole('employee');
 
         $updates = DailyUpdates::forUser(Auth::id());
         $today   = date('Y-m-d');
@@ -57,7 +57,7 @@ class EmployeeController
             $current = $updates[0];
         }
 
-        view('employee_updates', [
+        render('employee_updates', [
             'title'   => 'Daily Update',
             'today'   => $today,
             'current' => $current,
@@ -67,19 +67,19 @@ class EmployeeController
 
     public static function saveUpdate(): void
     {
-        Auth::requireRole('employee');
-        Auth::verifyCsrf();
+        Auth::needRole('employee');
+        Auth::checkCsrf();
 
         $summary  = trim($_POST['work_summary'] ?? '');
         $blockers = trim($_POST['blockers'] ?? '');
 
         if ($summary === '') {
-            set_flash('Write what you worked on today first.', 'error');
+            flash('Write what you worked on today first.', 'error');
             redirect('employee/updates');
         }
 
         DailyUpdates::save(Auth::id(), date('Y-m-d'), $summary, $blockers);
-        set_flash("Today's update saved.");
+        flash("Today's update saved.");
         redirect('employee/updates');
     }
 }

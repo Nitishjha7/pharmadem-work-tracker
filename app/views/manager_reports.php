@@ -19,7 +19,7 @@
     <tbody>
     <?php foreach ($performance as $p): ?>
         <tr>
-            <td><strong><?= e($p['name']) ?></strong></td>
+            <td><strong><?= esc($p['name']) ?></strong></td>
             <td><?= $p['total'] ?></td>
             <td><?= $p['completed'] ?></td>
             <td><?= $p['on_time'] ?></td>
@@ -29,7 +29,7 @@
                 <span class="small"><?= $p['completion_rate'] ?>%</span>
             </td>
             <td><strong><?= $p['score'] ?></strong></td>
-            <td><span class="rating <?= rating_class($p['rating']) ?>"><?= e($p['rating']) ?></span></td>
+            <td><span class="rating <?= rating_css($p['rating']) ?>"><?= esc($p['rating']) ?></span></td>
         </tr>
     <?php endforeach; ?>
     </tbody>
