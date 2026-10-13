@@ -3,12 +3,14 @@
 session_start();
 
 $root = dirname(__DIR__);
+date_default_timezone_set((require "$root/config.php")['timezone']);
 
 foreach (['Database', 'helpers', 'Auth', 'Users', 'Tasks', 'DailyUpdates', 'Performance',
           'AuthController', 'EmployeeController', 'ManagerController'] as $file) {
     require "$root/app/$file.php";
 }
 
+// route => [http method, controller, function]
 $routes = [
     'login'               => ['GET',  'AuthController', 'showLogin'],
     'login.submit'        => ['POST', 'AuthController', 'login'],
@@ -24,6 +26,9 @@ $routes = [
     'manager/tasks'       => ['GET',  'ManagerController', 'tasks'],
     'manager/task/new'    => ['GET',  'ManagerController', 'newTask'],
     'manager/task/create' => ['POST', 'ManagerController', 'createTask'],
+    'manager/task/edit'   => ['GET',  'ManagerController', 'editTask'],
+    'manager/task/update' => ['POST', 'ManagerController', 'updateTask'],
+    'manager/task/delete' => ['POST', 'ManagerController', 'deleteTask'],
     'manager/reports'     => ['GET',  'ManagerController', 'reports'],
 ];
 
