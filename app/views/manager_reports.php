@@ -13,6 +13,7 @@
             <th>Overdue</th>
             <th>Completion</th>
             <th>Score</th>
+            <th>How the score is made</th>
             <th>Rating</th>
         </tr>
     </thead>
@@ -29,6 +30,10 @@
                 <span class="small"><?= $p['completion_rate'] ?>%</span>
             </td>
             <td><strong><?= $p['score'] ?></strong></td>
+            <td class="small muted">
+                <?= $p['completed'] ?>/<?= $p['total'] ?> done = <?= number_format($p['completion_points'], 1) ?>
+                + <?= $p['on_time'] ?>/<?= $p['completed'] ?> on time = <?= number_format($p['on_time_points'], 1) ?>
+            </td>
             <td><span class="rating <?= rating_css($p['rating']) ?>"><?= esc($p['rating']) ?></span></td>
         </tr>
     <?php endforeach; ?>

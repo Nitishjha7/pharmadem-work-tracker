@@ -24,11 +24,11 @@
 
 <table class="table">
     <thead>
-        <tr><th>Task</th><th>Employee</th><th>Priority</th><th>Status</th><th>Due</th></tr>
+        <tr><th>Task</th><th>Employee</th><th>Priority</th><th>Status</th><th>Due</th><th></th></tr>
     </thead>
     <tbody>
     <?php if (!$tasks): ?>
-        <tr><td colspan="5" class="muted">No tasks found.</td></tr>
+        <tr><td colspan="6" class="muted">No tasks found.</td></tr>
     <?php endif; ?>
 
     <?php foreach ($tasks as $t): ?>
@@ -50,6 +50,15 @@
                 <?php else: ?>
                     <span class="muted">-</span>
                 <?php endif; ?>
+            </td>
+            <td class="row-actions">
+                <a class="link" href="index.php?r=manager/task/edit&id=<?= (int) $t['id'] ?>">Edit</a>
+                <form method="post" action="index.php?r=manager/task/delete"
+                      onsubmit="return confirm('Delete this task? The score will change too.')">
+                    <input type="hidden" name="csrf" value="<?= esc(Auth::csrf()) ?>">
+                    <input type="hidden" name="task_id" value="<?= (int) $t['id'] ?>">
+                    <button class="btn-sm btn-danger">Delete</button>
+                </form>
             </td>
         </tr>
     <?php endforeach; ?>

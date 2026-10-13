@@ -18,7 +18,7 @@ class EmployeeController
 
         render('employee_dashboard', [
             'title'        => 'My Tasks',
-            'buckets'      => $columns,
+            'columns'      => $columns,
             'overdueCount' => $overdueCount,
         ]);
     }
@@ -51,7 +51,7 @@ class EmployeeController
         $updates = DailyUpdates::forUser(Auth::id());
         $today   = date('Y-m-d');
 
-        // if today's entry exists, load it into the form so it can be edited
+        // list is newest first, so if first one is today then prefill the form with it
         $current = null;
         if ($updates && $updates[0]['update_date'] === $today) {
             $current = $updates[0];
@@ -75,6 +75,11 @@ class EmployeeController
 
         if ($summary === '') {
             flash('Write what you worked on today first.', 'error');
+            redirect('employee/updates');
+        }
+
+        if (mb_strlen($summary) > 5000 || mb_strlen($blockers) > 2000) {
+            flash('Update is too long, please shorten it.', 'error');
             redirect('employee/updates');
         }
 

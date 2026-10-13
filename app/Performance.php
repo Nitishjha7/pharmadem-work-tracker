@@ -1,15 +1,14 @@
 <?php
 
-// Score = 60% completion rate + 40% on-time rate
-//   completion rate = completed / assigned
-//   on-time rate    = completed on or before due date / completed
-// A completed task with no due date counts as on time.
-// Someone with no tasks gets 0, not 100.
+// score = 60% completion + 40% on-time
+// completed task with no due date = counts as on time
+// no tasks at all = 0 (not 100)
 class Performance
 {
     const COMPLETION_WEIGHT = 60;
     const ON_TIME_WEIGHT    = 40;
 
+    // one row per employee, task counts come from a single query, score is worked out in php
     public static function report(): array
     {
         $sql = "SELECT u.id, u.name,
@@ -43,7 +42,9 @@ class Performance
         return $result;
     }
 
-    // Pure maths, no database. Kept separate so it can be tested on its own.
+    // in: total assigned, completed, completed-on-time
+    // out: rates, points per part, final score (0-100) and rating
+    // no db here so it can be tested directly
     public static function calculate(int $total, int $completed, int $onTime): array
     {
         $completionRate = $total > 0 ? $completed / $total : 0;

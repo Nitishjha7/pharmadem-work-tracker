@@ -12,7 +12,7 @@ class Auth
             return false;
         }
 
-        // new session id after login so an old one can't be reused
+        // fresh session id after login
         session_regenerate_id(true);
         $_SESSION['user'] = [
             'id'   => (int) $user['id'],
@@ -55,6 +55,7 @@ class Auth
         }
     }
 
+    // wrong role = 403, not logged in = login page
     public static function needRole(string $role): void
     {
         self::needLogin();

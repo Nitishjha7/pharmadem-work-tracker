@@ -34,7 +34,7 @@ function rating_css(string $rating): string
     return 'rating-' . str_replace(' ', '-', strtolower($rating));
 }
 
-// Renders app/views/<name>.php and wraps it in the layout.
+// loads views/<name>.php, then puts the output inside layout.php as $content
 function render(string $name, array $data = []): void
 {
     extract($data);

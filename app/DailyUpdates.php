@@ -2,7 +2,7 @@
 
 class DailyUpdates
 {
-    // one row per user per day, saving again on the same day overwrites it
+    // one row per user per day (unique key), saving twice just overwrites
     public static function save(int $userId, string $date, string $summary, string $blockers): void
     {
         $stmt = Database::connection()->prepare(

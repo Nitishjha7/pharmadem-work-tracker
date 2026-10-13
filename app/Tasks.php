@@ -11,9 +11,8 @@ class Tasks
 
     const PRIORITIES = ['low', 'medium', 'high'];
 
-    // Overdue = not completed and due date already passed.
-    // Every query that needs "overdue" uses this so the numbers match everywhere.
-    // Tables using it must alias tasks as t.
+    // overdue = not completed + due date before today
+    // used in all queries so counts match everywhere. tasks table must be aliased as t
     const OVERDUE_COND = "(t.status <> 'completed' AND t.due_date IS NOT NULL AND t.due_date < CURDATE())";
 
     public static function isOverdue(array $task): bool
@@ -34,6 +33,7 @@ class Tasks
         return $stmt->fetchAll();
     }
 
+    // status can be a real status or 'overdue', employeeId optional. null/'' = no filter
     public static function search(?string $status, ?int $employeeId): array
     {
         $sql = "SELECT t.*, u.name AS employee_name
@@ -84,7 +84,7 @@ class Tasks
         return $stmt->fetch() ?: null;
     }
 
-    // Manager edit. Status and completed_at are left alone, those belong to the employee.
+    // manager edit. dont touch status/completed_at, that is the employee's part
     public static function update(int $id, array $data): void
     {
         $stmt = Database::connection()->prepare(
@@ -108,7 +108,7 @@ class Tasks
         $stmt->execute([$id]);
     }
 
-    // The assigned_to check means an employee can only touch their own tasks.
+    // returns false if task isnt theirs. completed_at set only when status = completed
     public static function updateStatus(int $taskId, int $employeeId, string $status): bool
     {
         $completedAt = $status === 'completed' ? date('Y-m-d H:i:s') : null;
@@ -118,7 +118,7 @@ class Tasks
         );
         $stmt->execute([$status, $completedAt, $taskId, $employeeId]);
 
-        // rowCount is 0 both for "not your task" and "nothing changed", so look the row up
+        // cant use rowCount, it is 0 when status is same as before too
         $check = Database::connection()->prepare('SELECT 1 FROM tasks WHERE id = ? AND assigned_to = ?');
         $check->execute([$taskId, $employeeId]);
         return (bool) $check->fetchColumn();
