@@ -43,6 +43,7 @@ CREATE TABLE daily_updates (
   user_id      INT  NOT NULL,
   update_date  DATE NOT NULL,
   work_summary TEXT NOT NULL,
+  plan         TEXT,
   blockers     TEXT,
   created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_update_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -62,6 +63,6 @@ INSERT INTO tasks (title, description, assigned_to, assigned_by, priority, statu
   ('Draft SOP revision',       'Revise SOP-17 cleaning procedure',           3, 1, 'high',   'todo',       DATE_ADD(CURDATE(), INTERVAL 5 DAY), NULL),
   ('Calibrate HPLC',           'Monthly calibration + log',                  3, 1, 'medium', 'completed',  DATE_SUB(CURDATE(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY));
 
-INSERT INTO daily_updates (user_id, update_date, work_summary, blockers) VALUES
-  (2, CURDATE(), 'Finished QC report for batch A-204, started stability data entry.', 'Waiting on CoA from vendor.'),
-  (3, CURDATE(), 'Completed HPLC calibration and updated the log.', NULL);
+INSERT INTO daily_updates (user_id, update_date, work_summary, plan, blockers) VALUES
+  (2, CURDATE(), 'Finished QC report for batch A-204, started stability data entry.', 'Finish stability data, call vendor about CoA.', 'Waiting on CoA from vendor.'),
+  (3, CURDATE(), 'Completed HPLC calibration and updated the log.', 'Start SOP-17 revision.', NULL);

@@ -143,3 +143,9 @@ button:hover { background: var(--brand-dark); }
 .btn-danger { background: #fdecec; color: var(--danger); }
 .btn-danger:hover { background: #fbd5d5; }
 .cancel { margin-left: 12px; }
+
+/* open tasks on the daily update page */
+.open-tasks { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; max-width: 640px; margin-bottom: 16px; }
+.open-tasks h2 { margin: 0 0 8px; font-size: 15px; }
+.open-tasks ul { margin: 0; padding-left: 18px; font-size: 14px; }
+.open-tasks li { margin: 4px 0; }

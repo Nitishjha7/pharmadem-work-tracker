@@ -1,121 +1,79 @@
 # PharmaDEM Work Tracker
 
-Employee daily work update and performance evaluation system, built with plain PHP and MySQL for the PharmaDEM assignment.
+Employee daily work update and performance tracking, written in plain PHP + MySQL for the PharmaDEM assignment. No framework, just PDO and a small router.
 
-Managers assign tasks and see how each employee is doing. Employees update their task status and post a short update every day.
+Managers give out tasks and see how everyone is doing. Employees move their tasks forward and post a short update each day.
 
-## Stack
-
-- PHP 8 (no framework, PDO for the database)
-- MySQL / MariaDB
-- Plain CSS
-
-## What it does
+## What's in it
 
 Manager
-- dashboard with task counts (total, completed, open, overdue), team scores and the latest daily updates
-- assign a task to an employee with priority and due date
-- edit or delete a task (status stays with the employee)
-- list all tasks, filter by status (including overdue) or by employee
-- performance report per employee, with the score breakdown shown next to each number
+- dashboard: task counts, team scores, latest daily updates
+- assign a task (priority, due date), edit it later, or delete it
+- all tasks list, filter by status (incl. overdue) or employee
+- performance report per employee
 
 Employee
-- own tasks shown in four columns: To Do, In Progress, Pending, Completed
-- change a task's status, completion time is saved automatically
-- one daily update per day (work done + blockers), can be edited the same day
-
-## Overdue and performance score
-
-A task is overdue if it is not completed and its due date is before today. The rule is defined once in `Tasks::OVERDUE_COND` and used by every query.
-
-```
-score = 60% * completion rate + 40% * on-time rate
-
-completion rate = completed tasks / assigned tasks
-on-time rate    = tasks completed on or before the due date / completed tasks
-```
-
-A completed task with no due date counts as on time. An employee with no tasks gets 0.
-
-Rating: 80+ Excellent, 60+ Good, 40+ Average, below 40 Needs improvement.
-
-## Why it is built this way
-
-- **Score is simple on purpose.** A manager should be able to look at the numbers and see why someone got 78. The report prints the working (`4/5 done = 48.0 + 3/4 on time = 30.0`) instead of just the final number.
-- **Completion weighs more than punctuality (60/40).** Finishing work matters more than finishing it early. The weights are constants in `Performance.php` if the team wants to change them.
-- **No tasks means score 0, not 100.** Otherwise a new joiner would top the table.
-- **Overdue is defined once** (`Tasks::OVERDUE_COND`). The dashboard count, the filter and the report all use it, so they cannot disagree. `Tasks::isOverdue()` is the same rule for a single row in PHP.
-- **Managers edit the task, employees own the status.** Edit does not touch `status` or `completed_at`, so a manager cannot quietly change someone's completion record.
-- **Deleting a task removes it from the score.** There is no soft delete, this is a deliberate shortcut. A real system would probably archive instead.
-- **Score maths is a separate function** (`Performance::calculate`) with no database in it, which is why it can be tested without MySQL.
-- **No framework.** For this size a small router and PDO is enough and everything stays readable. Past a handful more screens I would move to Laravel or Slim.
+- own tasks in To Do / In Progress / Pending / Completed columns
+- change status, completion time is stored when a task is marked completed
+- daily update with what was done, what's next and blockers. One per day, can be edited the same day. The page also shows the employee's open tasks.
 
 ## Setup
 
-1. Put the project in your web root (for XAMPP, `htdocs/pharmadem`) or anywhere you like.
-2. Import the database:
+1. Import the database (this drops and recreates the `pharmadem` tables):
    ```
    mysql -u root -p < sql/schema.sql
    ```
-3. Check the DB details in `config.php`. Defaults are `root` with an empty password on localhost. You can also set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` as environment variables. The timezone is also set there (`Asia/Kolkata` by default, or `APP_TZ`). PHP and MySQL are both put on it, because "today" decides what is overdue.
-4. Start the app with the document root set to `public/`:
+2. DB details are in `config.php` (root, no password, localhost by default). `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` and `APP_TZ` can also be set as env variables. Timezone defaults to Asia/Kolkata and is applied to both PHP and MySQL, since "today" decides what is overdue.
+3. Run it from the `public` folder:
    ```
    cd public
    php -S localhost:8000
    ```
-   and open http://localhost:8000
 
-## Tests
+Logins, password is `password123` for all:
 
-```
-php tests/run.php
-```
+- manager@pharmadem.in
+- arjun@pharmadem.in
+- sneha@pharmadem.in
 
-Plain PHP, no composer. Covers the score calculation, rating boundaries (79/80, 59/60, 39/40), the no-tasks case, the overdue rule and the small helpers. Anything that needs the database is checked by hand through the UI.
+Tests (no DB needed): `php tests/run.php`
 
-## Demo logins
+## Overdue and score
 
-Password for all accounts is `password123`.
+A task is overdue when it's not completed and the due date is before today. That condition is written once (`Tasks::OVERDUE_COND`) and reused by the dashboard, the filter and the report, so the numbers always agree.
 
-| Role     | Email                |
-|----------|----------------------|
-| Manager  | manager@pharmadem.in |
-| Employee | arjun@pharmadem.in   |
-| Employee | sneha@pharmadem.in   |
-
-## Folder layout
+Score out of 100:
 
 ```
-config.php            database settings
-sql/schema.sql        tables and demo data
-public/index.php      entry point and routes
-public/assets/        css
-app/
-  Database.php        PDO connection
-  Auth.php            login, roles, CSRF
-  helpers.php         esc(), redirect(), flash messages, render()
-  Users.php, Tasks.php, DailyUpdates.php, Performance.php    database queries
-  *Controller.php     request handling
-  views/              page templates
-tests/run.php         unit tests
+60% * (completed / assigned) + 40% * (completed on time / completed)
+```
+
+Completed tasks with no due date count as on time. If someone has no tasks the score is 0, otherwise a new joiner would show 100. Rating is Excellent from 80, Good from 60, Average from 40, else Needs improvement.
+
+I went with completion over punctuality (60/40) because getting the work done matters more than getting it done early. The weights are two constants in `Performance.php` if that needs to change. The report also prints the working next to each score (like `4/5 done = 48.0 + 3/4 on time = 30.0`) so a manager can see why a number is what it is.
+
+A few choices worth knowing about:
+- manager edit doesn't touch status or completed_at, those belong to the employee
+- deleting a task is a real delete, so it also drops out of the score
+- the score maths is its own function (`Performance::calculate`) so it can be tested without a database
+
+## Layout
+
+```
+config.php          db + timezone settings
+sql/schema.sql      tables and demo data
+public/index.php    routes
+app/                models, controllers, helpers
+app/views/          templates
+tests/run.php       tests
 ```
 
 ## Security
 
-- passwords stored with `password_hash`
-- all queries use prepared statements
-- output escaped with `htmlspecialchars`
-- CSRF token on every POST form
-- session id regenerated on login
-- every manager/employee page checks the role, and employees can only update their own tasks
-- delete is a POST with a CSRF token, never a plain link
+Prepared statements everywhere, passwords with `password_hash`, output escaped with `htmlspecialchars`, CSRF token on every POST, session id regenerated on login, role check on every manager/employee page, and employees can only update their own tasks.
 
-## Database
+## Tables
 
-- `users`: name, email, password hash, role (manager or employee)
+- `users`: name, email, password hash, role
 - `tasks`: title, description, assigned_to, assigned_by, priority, status, due_date, completed_at
-- `daily_updates`: user, date, work summary, blockers. Unique on (user, date), so saving twice in a day updates the same row.
-
-## Not done yet
-
-Pagination, task comments, email reminders and CSV export of reports.
+- `daily_updates`: user, date, work summary, plan, blockers. Unique on (user, date), so saving twice in a day updates the same row.

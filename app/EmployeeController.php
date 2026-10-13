@@ -58,10 +58,14 @@ class EmployeeController
         }
 
         render('employee_updates', [
-            'title'   => 'Daily Update',
-            'today'   => $today,
-            'current' => $current,
-            'updates' => $updates,
+            'title'     => 'Daily Update',
+            'today'     => $today,
+            'current'   => $current,
+            'updates'   => $updates,
+            'openTasks' => array_filter(
+                Tasks::forEmployee(Auth::id()),
+                fn ($t) => $t['status'] !== 'completed'
+            ),
         ]);
     }
 
@@ -71,6 +75,7 @@ class EmployeeController
         Auth::checkCsrf();
 
         $summary  = trim($_POST['work_summary'] ?? '');
+        $plan     = trim($_POST['plan'] ?? '');
         $blockers = trim($_POST['blockers'] ?? '');
 
         if ($summary === '') {
@@ -78,12 +83,12 @@ class EmployeeController
             redirect('employee/updates');
         }
 
-        if (mb_strlen($summary) > 5000 || mb_strlen($blockers) > 2000) {
+        if (mb_strlen($summary) > 5000 || mb_strlen($plan) > 2000 || mb_strlen($blockers) > 2000) {
             flash('Update is too long, please shorten it.', 'error');
             redirect('employee/updates');
         }
 
-        DailyUpdates::save(Auth::id(), date('Y-m-d'), $summary, $blockers);
+        DailyUpdates::save(Auth::id(), date('Y-m-d'), $summary, $plan, $blockers);
         flash("Today's update saved.");
         redirect('employee/updates');
     }

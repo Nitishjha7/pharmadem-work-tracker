@@ -42,6 +42,9 @@
                     <div class="update-body">
                         <strong><?= esc($u['employee_name']) ?></strong>
                         <p><?= nl2br(esc($u['work_summary'])) ?></p>
+                        <?php if ($u['plan']): ?>
+                            <p><strong>To-do next:</strong> <?= nl2br(esc($u['plan'])) ?></p>
+                        <?php endif; ?>
                         <?php if ($u['blockers']): ?>
                             <p class="blocker"><strong>Blockers:</strong> <?= nl2br(esc($u['blockers'])) ?></p>
                         <?php endif; ?>

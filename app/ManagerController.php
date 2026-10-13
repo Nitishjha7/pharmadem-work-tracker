@@ -18,7 +18,7 @@ class ManagerController
     {
         Auth::needRole('manager');
 
-        $status   = $_GET['status'] ?? '';
+        $status   = is_string($_GET['status'] ?? null) ? $_GET['status'] : '';
         $employee = (int) ($_GET['employee'] ?? 0);
 
         render('manager_tasks', [
