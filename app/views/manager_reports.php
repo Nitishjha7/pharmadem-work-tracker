@@ -1,0 +1,36 @@
+<h1>Performance Reports</h1>
+<p class="muted">
+    Score = 60% completion rate + 40% on-time rate. Overdue tasks are listed separately.
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Assigned</th>
+            <th>Completed</th>
+            <th>On time</th>
+            <th>Overdue</th>
+            <th>Completion</th>
+            <th>Score</th>
+            <th>Rating</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($performance as $p): ?>
+        <tr>
+            <td><strong><?= e($p['name']) ?></strong></td>
+            <td><?= $p['total'] ?></td>
+            <td><?= $p['completed'] ?></td>
+            <td><?= $p['on_time'] ?></td>
+            <td><?= $p['overdue'] ?></td>
+            <td>
+                <div class="bar"><div class="bar-fill" style="width: <?= $p['completion_rate'] ?>%"></div></div>
+                <span class="small"><?= $p['completion_rate'] ?>%</span>
+            </td>
+            <td><strong><?= $p['score'] ?></strong></td>
+            <td><span class="rating <?= rating_class($p['rating']) ?>"><?= e($p['rating']) ?></span></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+</table>
